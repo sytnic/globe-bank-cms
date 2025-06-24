@@ -12,4 +12,26 @@
     # Import subjects and pages tables and data
     mysql -u webuser -p globe_bank < path/to/file.sql
 
+## 06. List subjects
+
+Пример полного цикла соединения с БД с помощью mysqli.
+
+```php
+// 1
+    $db = mysqli_connect(DB_SERVER, DB_USER, DB_PASS, DB_NAME);
+// 2    
+    $sql = "SELECT * FROM subjects ";
+    $sql.= " ORDER BY position ASC";
+    
+    $subject_set = mysqli_query($db, $sql);
+// 3    
+    while ($subject = mysqli_fetch_assoc($subject_set)) {
+        echo $subject['menu_name'];
+    }
+// 4
+    mysqli_free_result($subject_set);
+// 5
+    mysqli_close($db);
+```
+
 ## 
