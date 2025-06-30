@@ -362,5 +362,22 @@ function delete_page($id) {
     }
 }
 
+/**
+ * Получить все страницы, относящиеся к данному субъекту
+ *
+ * @param string $id
+ * @return result_set 
+ */
+function find_pages_by_subject_id($subject_id) {
+  global $db;
+
+  $sql = "SELECT * FROM pages";
+  $sql.= " WHERE subject_id='".db_escape($db, $subject_id)."' ";
+  $sql.= " ORDER BY position ASC";
+  $result = mysqli_query($db, $sql);
+  confirm_result_set($result);
+  return $result;
+}
+
 
 ?>
