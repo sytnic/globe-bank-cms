@@ -1,3 +1,7 @@
+<?php
+  // Default values to prevent errors
+  $page_id = $page_id ?? '';
+?>
 <navigation>
   <?php $nav_subjects = find_all_subjects(); ?>
   <ul class="subjects">
@@ -10,7 +14,7 @@
         <?php $nav_pages = find_pages_by_subject_id($nav_subject['id']); ?>
         <ul class="pages">
           <?php while($nav_page = mysqli_fetch_assoc($nav_pages)) { ?>
-            <li>
+            <li class="<?php if($nav_page['id'] == $page_id) {echo 'selected';}  ?>">
               <a href="<?php echo url_for('index.php?id='.h(u($nav_page['id']))); ?>">
                 <?php echo h($nav_page['menu_name']); ?>
               </a>                          
