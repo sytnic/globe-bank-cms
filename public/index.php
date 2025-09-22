@@ -13,8 +13,8 @@ if(isset($_GET['id'])) {
 } elseif(isset($_GET['subject_id'])) {
   $subject_id = $_GET['subject_id'];
 
-  // получить первую страницу в списке подстраниц заданной темы
-  $page_set = find_pages_by_subject_id($subject_id);
+  // получить первую видимую страницу в списке подстраниц заданной темы
+  $page_set = find_pages_by_subject_id($subject_id, ['visible' => true]);
   $page = mysqli_fetch_assoc($page_set); // first page
   mysqli_free_result($page_set);
   if(!$page) {

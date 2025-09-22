@@ -19,7 +19,7 @@
         <?php if($nav_subject['id'] == $subject_id) { 
             // если id текущего get-параметра совпали с id темы, 
             // то показать подстраницы под темой ?>
-        <?php $nav_pages = find_pages_by_subject_id($nav_subject['id']); ?>
+        <?php $nav_pages = find_pages_by_subject_id($nav_subject['id'], ['visible' => true]); ?>
         <ul class="pages">
           <?php while($nav_page = mysqli_fetch_assoc($nav_pages)) { ?>
             <?php  // если страница невидима, то пропустить текущую итерацию цикла
