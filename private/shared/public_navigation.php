@@ -4,12 +4,12 @@
   $subject_id = $subject_id ?? '';
 ?>
 <navigation>
-  <?php $nav_subjects = find_all_subjects(); ?>
+  <?php $nav_subjects = find_all_subjects(['visible' => true]); ?>
   
   <ul class="subjects">
     <?php while($nav_subject = mysqli_fetch_assoc($nav_subjects)) { ?>
       <?php  // если субъект (тема) невидимый, то пропустить текущую итерацию цикла
-        if(!$nav_subject['visible']) { continue; } ?>
+             // if(!$nav_subject['visible']) { continue; } ?>
 
       <li class="<?php if($nav_subject['id'] == $subject_id) {echo 'selected';}  ?>">
         <a href="<?php echo url_for('index.php?subject_id='.h(u($nav_subject['id']))); ?>">
@@ -23,7 +23,7 @@
         <ul class="pages">
           <?php while($nav_page = mysqli_fetch_assoc($nav_pages)) { ?>
             <?php  // если страница невидима, то пропустить текущую итерацию цикла
-                if(!$nav_page['visible']) { continue; } ?>
+                   // if(!$nav_page['visible']) { continue; } ?>
 
             <li class="<?php if($nav_page['id'] == $page_id) {echo 'selected';}  ?>">
               <a href="<?php echo url_for('index.php?id='.h(u($nav_page['id']))); ?>">

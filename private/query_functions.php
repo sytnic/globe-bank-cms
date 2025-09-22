@@ -7,10 +7,15 @@
  * 
  * @return mysqli_result|bool
  */
-function find_all_subjects() {
+function find_all_subjects($options=[]) {
     global $db;
     
+    $visible = $options['visible'] ?? false;
+
     $sql = "SELECT * FROM subjects";
+    if($visible) {
+      $sql.= " WHERE visible = true";
+    }
     $sql.= " ORDER BY position ASC";
     $result_set = mysqli_query($db, $sql);
     confirm_result_set($result_set);

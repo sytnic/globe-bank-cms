@@ -34,4 +34,25 @@
     mysqli_close($db);
 ```
 
+## 15. Use an option for conditional code
+
+Как использовать массив вместо аргументов в функции
+
+```php
+
+function find_all_subjects($options = []) { 
+    
+    $visible = $options['visible'] ?? false;
+    
+    if($visible) {
+      // ...
+    }
+}
+
+$opts = ['visible' => true, 'order' => 'ascending'];
+
+$subjects = find_all_subjects($opts);
+
+```
+
 ## 
