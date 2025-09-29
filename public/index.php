@@ -12,8 +12,19 @@ if(isset($_GET['id'])) {
   } 
   $subject_id = $page['subject_id'];
 
+  // проверить, есть ли видимость у субъекта (темы)
+  $subject = find_subject_by_id($subject_id, ['visible' => true]);
+  if(!$subject) {
+    redirect_to(url_for('/index.php'));
+  }
+
 } elseif(isset($_GET['subject_id'])) {
   $subject_id = $_GET['subject_id'];
+  // проверить, есть ли видимость у субъекта (темы)
+  $subject = find_subject_by_id($subject_id, ['visible' => true]);  
+  if(!$subject) {
+    redirect_to(url_for('/index.php'));
+  }
 
   // получить первую видимую страницу в списке подстраниц заданной темы
   $page_set = find_pages_by_subject_id($subject_id, ['visible' => true]);
