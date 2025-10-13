@@ -54,7 +54,9 @@ if(isset($_GET['id'])) {
     if(isset($page)) {
       // show the page from the database.
       // TODO add html escaping back in: h()
-      echo $page['content'];
+      // using strip_tags()
+      $allowed_tags = '<div><img><h1><h2><p><br><strong><em><ul><li>';
+      echo strip_tags($page['content'], $allowed_tags);
 
     } else {
       // Show the homepage
