@@ -2,9 +2,17 @@
   // Default values to prevent errors
   $page_id = $page_id ?? '';
   $subject_id = $subject_id ?? '';
+  $visible = $visible ?? true;
+  // $visible берётся со скриптов ранее или устанавливается true по умолчанию
 ?>
 <navigation>
-  <?php $nav_subjects = find_all_subjects(['visible' => true]); ?>
+  <?php
+  // ранее всегда было ['visible' => true], т.е. всегда показывались только "видимые" страницы со столбцом visible == true.
+  // Теперь меняется динамически в зависимости от переменной !$preview в идущих ранее скриптах.
+  // Когда $preview == true, то $visible == false, и тогда SQL-запрос вообще не учитывает столбец visible,
+  // возвращая все запрошенные строки, несмотря на значение в столбце visible.
+  ?>
+  <?php $nav_subjects = find_all_subjects(['visible' => $visible]); ?>
   
   <ul class="subjects">
     <?php while($nav_subject = mysqli_fetch_assoc($nav_subjects)) { ?>
@@ -19,7 +27,13 @@
         <?php if($nav_subject['id'] == $subject_id) { 
             // если id текущего get-параметра совпали с id темы, 
             // то показать подстраницы под темой ?>
-        <?php $nav_pages = find_pages_by_subject_id($nav_subject['id'], ['visible' => true]); ?>
+        <?php
+        // ранее всегда было ['visible' => true]
+        // Теперь меняется динамически в зависимости от переменной !$preview в идущих ранее скриптах.
+        // Когда $preview == true, то $visible == false, и тогда
+        // возвращаются все запрошенные строки, несмотря на значение в столбце visible.
+        ?>
+        <?php $nav_pages = find_pages_by_subject_id($nav_subject['id'], ['visible' => $visible]); ?>
         <ul class="pages">
           <?php while($nav_page = mysqli_fetch_assoc($nav_pages)) { ?>
             <?php  // если страница невидима, то пропустить текущую итерацию цикла

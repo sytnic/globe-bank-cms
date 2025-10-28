@@ -216,10 +216,15 @@ function find_all_pages() {
 function find_page_by_id($id, $options=[]) {
     global $db;
 
-    $visible = $options['visible'] ?? false;    
-
+    // $visible либо явно задаётся как true, либо всегда получает значение false,
+    // в т.ч. когда $visible не задан, $visible будет false,
+    // т.е. $visible по умолчанию всегда false.
+    $visible = $options['visible'] ?? false;
+    
     $sql = "SELECT * FROM pages";
     $sql.= " WHERE id='".db_escape($db, $id)."' ";
+    // когда $visible == false, SQL-запрос вообще не учитывает столбец visible;
+    // будут возвращены все запрошенные строки, несмотря на значение в столбце visible.    
     if($visible) {
       $sql.= " AND visible = true";
     }

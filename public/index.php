@@ -1,19 +1,55 @@
 <?php require_once('../private/initialize.php');  ?>
 
 <?php
+
+$preview = false;
+// по умолчанию false
+
+// но если в Гет-параметре задано true, то присвоить переменной true
+if(isset($_GET['preview'])) {
+  // previewing should require admin to be logged in
+  $preview = $_GET['preview'] == 'true' ? true : false;
+}
+
+$visible = !$preview; 
+// если $preview true, то $visible false -
+//     - тогда столбец visible не учитывается, будут возвращаться все запрашиваемые строки 
+//       (столбец visible == и true, и false)
+// если $preview false, то $visible true -  
+//     - тогда столбец visible учитывается, будут возвращаться только строки 
+//       со столбцом visible == true.
+//
+// Таким образом, иными словами, 
+// 
+// параметр &preview=true создаёт поведение по умолчанию - 
+// - так же, когда $visible вообще не задаётся, т.е. $visible == false,
+// и показываются все возможные строки,
+// будет показана вызываемая страница, даже "невидимая" со столбцом visible == false.
+// 
+// а параметр &preview=false задаёт $visible == true, 
+// и будут показаны только строки со столбцом visible == true ,
+// будет перенаправление при вызове "невидимой" страницы со столбцом visible == false.
+// 
+
+
 if(isset($_GET['id'])) {
 
   $page_id = $_GET['id'];
 
   // проверить, есть ли видимость у страницы
-  $page = find_page_by_id($page_id, ['visible' => true]);
+
+  // было ['visible' => true], т.е. всегда показывались только "видимые" страницы со столбцом visible == true.
+  // Теперь меняется динамически в зависимости от переменной !$preview.
+  // Когда $preview == true, то $visible == false, и тогда SQL-запрос вообще не учитывает столбец visible,
+  // возвращая все запрошенные строки, несмотря на значение в столбце visible.
+  $page = find_page_by_id($page_id, ['visible' => $visible]);
   if(!$page) {
     redirect_to(url_for('/index.php'));
   } 
   $subject_id = $page['subject_id'];
 
   // проверить, есть ли видимость у субъекта (темы)
-  $subject = find_subject_by_id($subject_id, ['visible' => true]);
+  $subject = find_subject_by_id($subject_id, ['visible' => $visible]);
   if(!$subject) {
     redirect_to(url_for('/index.php'));
   }
@@ -21,13 +57,13 @@ if(isset($_GET['id'])) {
 } elseif(isset($_GET['subject_id'])) {
   $subject_id = $_GET['subject_id'];
   // проверить, есть ли видимость у субъекта (темы)
-  $subject = find_subject_by_id($subject_id, ['visible' => true]);  
+  $subject = find_subject_by_id($subject_id, ['visible' => $visible]);  
   if(!$subject) {
     redirect_to(url_for('/index.php'));
   }
 
   // получить первую видимую страницу в списке подстраниц заданной темы
-  $page_set = find_pages_by_subject_id($subject_id, ['visible' => true]);
+  $page_set = find_pages_by_subject_id($subject_id, ['visible' => $visible]);
   $page = mysqli_fetch_assoc($page_set); // first page
   mysqli_free_result($page_set);
   if(!$page) {
