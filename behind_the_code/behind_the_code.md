@@ -69,3 +69,21 @@ $subjects = find_all_subjects($opts);
 - Markdown
 - библиотека HTMLPurifier, htmlpurifier.org
 - встроенная функция в PHP - strip_tags(), позволяет указывать разрешённые теги. Также для правильного форматирования тут может помочь функция nl2br()
+
+## 23. Unset cookie values
+
+Два способа. Но делают они одно и то же: `false` откатывает на 1 час назад.
+
+```php
+// Right: set value to false 
+setcookie($name, false);
+
+// Right: expire 1 hour ago
+setcookie($name, $value, (time() - 3600));
+```
+
+- Избегайте логических значений при настройке (установке) файлов cookie.
+- Вместо этого используйте "0" для "false" и "1" для "true".
+- Файлы cookie можно удалить только с помощью тех же параметров, которые использовались при настройке (установке) файлов cookie.
+
+## 
