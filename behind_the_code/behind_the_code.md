@@ -86,4 +86,14 @@ setcookie($name, $value, (time() - 3600));
 - Вместо этого используйте "0" для "false" и "1" для "true".
 - Файлы cookie можно удалить только с помощью тех же параметров, которые использовались при настройке (установке) файлов cookie.
 
+## 24. Work with sessions
+
+Сессии могут быть настроены в php.ini.
+
+https://www.php.net/manual/ru/session.configuration.php
+
+Старт сессии
+
+    session_start($options)
+
 ## 
