@@ -94,6 +94,27 @@ https://www.php.net/manual/ru/session.configuration.php
 
 Старт сессии
 
-    session_start($options)
+    session_start($options);
 
-## 
+## 25. Set and read session values
+
+> Основы работы с сессиями.
+
+Установить данные сессии.
+
+    $_SESSION['lang'] = 'English';
+
+Прочитать данные сессии   
+
+    $lang = $_SESSION['lang'];    
+    
+    // чтение с предварительной проверкой доступности данных
+    $lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : '';
+    // или так
+    $lang = $_SESSION['lang'] ?? ''; // PHP > 7.0
+
+Удалить данные сессии.
+
+    unset($_SESSION['lang']);
+
+##
