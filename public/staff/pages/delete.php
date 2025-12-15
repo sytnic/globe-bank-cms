@@ -11,6 +11,7 @@ $id = $_GET['id'];
 if(is_post_request()) {
 
   $result = delete_page($id);
+  $_SESSION['message'] = 'The subject was deleted successfully.';
   redirect_to(url_for('/staff/pages/index.php'));
 
 } else { // иначе, в случае гет-запроса, подготавливаем форму
