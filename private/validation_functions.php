@@ -190,4 +190,32 @@
 
   }
 
+  // has_unique_username('johnqpublic')
+  // * Validates uniqueness of admins.username
+  // * For new records, provide only the username.
+  // * For existing records, provide current ID as second argument
+  //   has_unique_username('johnqpublic', 4)
+
+  /**
+   * Уникально ли имя пользователя.  
+   * 
+   * Аналогично функции has_unique_page_menu_name().   
+   * Работает и для существующей, и для новой записи.
+   * 
+   * @return boolean
+   */
+  function has_unique_username($username, $current_id="0") {
+    global $db;
+
+    $sql = "SELECT * FROM admins ";
+    $sql .= "WHERE username='" . db_escape($db, $username) . "' ";
+    $sql .= "AND id != '" . db_escape($db, $current_id) . "'";
+
+    $result = mysqli_query($db, $sql);
+    $admin_count = mysqli_num_rows($result);
+    mysqli_free_result($result);
+
+    return $admin_count === 0;
+  }
+
 ?>
