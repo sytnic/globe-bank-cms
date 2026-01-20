@@ -133,4 +133,19 @@ CREATE TABLE admins (
 ALTER TABLE admins ADD INDEX index_username (username);
 ```
 
+## 32. PHP password functions
+
+Встроенные функции, которые помогают в шифровании пароля и сверке предоставленного пароля с зашифрованным.  
+Сейчас по умолчанию используется BCRYPT (Blowfish), но его можно использовать и напрямую.  
+
+<img src="img/password-functions.jpg" alt="drawing" width="600"/>
+
+В случае сверки сверка возможна потому, что в зашифрованный пароль встроена вся нужная информация: какой вид шифрования использовался, какова его "стоимость" (сложность), автоматически добавленная соль.  
+
+https://www.php.net/manual/ru/function.password-hash.php
+
+https://www.php.net/manual/ru/function.password-verify.php
+
+
 ## 
+
