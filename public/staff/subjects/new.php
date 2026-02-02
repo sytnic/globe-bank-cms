@@ -2,6 +2,8 @@
 
 require_once('../../../private/initialize.php');
 
+require_login();
+
 /* тестирование больше не нужно
 $test = $_GET['test'] ?? '';
 

@@ -147,5 +147,9 @@ https://www.php.net/manual/ru/function.password-hash.php
 https://www.php.net/manual/ru/function.password-verify.php
 
 
-## 
+## 34. Require authorization
+
+Настроенная функция `require_login()` в `private\auth_functions.php` проверяет, вошёл пользователь (администратор) или нет, и допускает или не допускает на страницы, где она прописана.  
+
+##
 

@@ -1,6 +1,7 @@
 <?php require_once('../../../private/initialize.php'); ?>
 
 <?php
+  require_login();
 
 // 2 вариант - тернарный оператор
 // $id = isset($_GET['id']) ? $_GET['id'] : '1';  // for PHP < 7.0

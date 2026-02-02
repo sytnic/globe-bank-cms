@@ -2,6 +2,8 @@
 
 require_once('../../../private/initialize.php');
 
+require_login();
+
 // Если была post-отправка, то сохранить данные в БД и редирект
 if (is_post_request()) {
 

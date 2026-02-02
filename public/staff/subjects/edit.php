@@ -2,6 +2,8 @@
 
 require_once('../../../private/initialize.php');
 
+require_login();
+
 // Если не было параметров запроса (url?id=...), 
 // т.е. GET пустой,
 // то редирект
