@@ -1,30 +1,41 @@
 <?php
 
   // Performs all actions necessary to log in an admin
-  /**
-   * Устанавливает значения в сессию из ассоциативного массива,
-   * полученного из БД
-   *  
-   * @param array
-   * @return boolean
-   */
-  function log_in_admin($admin) {
-  // Regenerating the ID protects the admin from session fixation.
-    session_regenerate_id();
-    $_SESSION['admin_id'] = $admin['id'];
-    $_SESSION['last_login'] = time();
-    $_SESSION['username'] = $admin['username'];
-    return true;
-  }
+/**
+ * Устанавливает значения в сессию из ассоциативного массива,
+ * полученного из БД
+ *  
+ * @param array
+ * @return boolean
+ */
+function log_in_admin($admin) {
+// Regenerating the ID protects the admin from session fixation.
+  session_regenerate_id();
+  $_SESSION['admin_id'] = $admin['id'];
+  $_SESSION['last_login'] = time();
+  $_SESSION['username'] = $admin['username'];
+  return true;
+}
 
-// is_logged_in() contains all the logic for determining if a
-// request should be considered a "logged in" request or not.
-// It is the core of require_login() but it can also be called
-// on its own in other contexts (e.g. display one link if an admin
-// is logged in and display another link if they are not)
-  /** 
-   * @return boolean
-   */
+  // Performs all actions necessary to log out an admin
+function log_out_admin() {
+  unset($_SESSION['admin_id']);  // самый главный пункт при логауте
+  unset($_SESSION['last_login']);
+  unset($_SESSION['username']);
+  // session_destroy(); // optional: destroys the whole session
+  // это опциональное уничтожение всей сессии, 
+  // но она, возможно, для чего-то ещё нужна.  
+  return true;
+}
+
+  // is_logged_in() contains all the logic for determining if a
+  // request should be considered a "logged in" request or not.
+  // It is the core of require_login() but it can also be called
+  // on its own in other contexts (e.g. display one link if an admin
+  // is logged in and display another link if they are not)
+/** 
+ * @return boolean
+ */
 function is_logged_in() {
   // Having a admin_id in the session serves a dual-purpose:
   // - Its presence indicates the admin is logged in.
@@ -32,11 +43,11 @@ function is_logged_in() {
   return isset($_SESSION['admin_id']);
 }
 
-// Call require_login() at the top of any page which needs to
-// require a valid login before granting acccess to the page.
-  /** 
-   * Проверка, вошедший пользователь или нет
-   */
+  // Call require_login() at the top of any page which needs to
+  // require a valid login before granting acccess to the page.
+/** 
+ * Проверка, вошедший пользователь или нет
+ */
 function require_login() {
   if(!is_logged_in()) {
     redirect_to(url_for('/staff/login.php'));
