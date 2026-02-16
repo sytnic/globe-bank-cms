@@ -449,7 +449,11 @@ function find_admin_by_username($username) {
   return $admin; // returns an assoc. array
 }
 
-function validate_admin($admin) {
+function validate_admin($admin, $options=[]) {
+
+  // если пароль отправлен из формы (true), то требуется пароль;
+  // по умолчанию, всегда требуется
+  $password_required = $options['password_required'] ?? true;
 
   if(is_blank($admin['first_name'])) {
     $errors[] = "First name cannot be blank.";
@@ -479,26 +483,29 @@ function validate_admin($admin) {
     $errors[] = "Username not allowed. Try another.";
   }
 
-  if(is_blank($admin['password'])) {
-    $errors[] = "Password cannot be blank.";
-  } elseif (!has_length($admin['password'], array('min' => 12))) {
-    $errors[] = "Password must contain 12 or more characters";
-  } elseif (!preg_match('/[A-Z]/', $admin['password'])) {
-    $errors[] = "Password must contain at least 1 uppercase letter";
-  } elseif (!preg_match('/[a-z]/', $admin['password'])) {
-    $errors[] = "Password must contain at least 1 lowercase letter";
-  } elseif (!preg_match('/[0-9]/', $admin['password'])) {
-    $errors[] = "Password must contain at least 1 number";
-  } elseif (!preg_match('/[^A-Za-z0-9\s]/', $admin['password'])) {
-    $errors[] = "Password must contain at least 1 symbol";
-  }
-  // здесь по очереди используется требование любого, хотя бы одного, знака в строке;
-  // в последнем регулярном выражении - хотя бы один не из этого набора, https://regex101.com/
+  // если пароль требуется, то запустить проверки пароля и подтверждение пароля
+  if($password_required) {
+    if(is_blank($admin['password'])) {
+      $errors[] = "Password cannot be blank.";
+    } elseif (!has_length($admin['password'], array('min' => 12))) {
+      $errors[] = "Password must contain 12 or more characters";
+    } elseif (!preg_match('/[A-Z]/', $admin['password'])) {
+      $errors[] = "Password must contain at least 1 uppercase letter";
+    } elseif (!preg_match('/[a-z]/', $admin['password'])) {
+      $errors[] = "Password must contain at least 1 lowercase letter";
+    } elseif (!preg_match('/[0-9]/', $admin['password'])) {
+      $errors[] = "Password must contain at least 1 number";
+    } elseif (!preg_match('/[^A-Za-z0-9\s]/', $admin['password'])) {
+      $errors[] = "Password must contain at least 1 symbol";
+    }
+    // здесь по очереди используется требование любого, хотя бы одного, знака в строке;
+    // в последнем регулярном выражении - хотя бы один не из этого набора, https://regex101.com/
 
-  if(is_blank($admin['confirm_password'])) {
-    $errors[] = "Confirm password cannot be blank.";
-  } elseif ($admin['password'] !== $admin['confirm_password']) {
-    $errors[] = "Password and confirm password must match.";
+    if(is_blank($admin['confirm_password'])) {
+      $errors[] = "Confirm password cannot be blank.";
+    } elseif ($admin['password'] !== $admin['confirm_password']) {
+      $errors[] = "Password and confirm password must match.";
+    }
   }
 
   return $errors;
@@ -539,7 +546,15 @@ function insert_admin($admin) {
 function update_admin($admin) {
   global $db;
 
-  $errors = validate_admin($admin);
+  // отмечаем, был ли отправлен пароль при обновлении данных админа,
+  // булево значение,
+  // true  - если пароль отправлен, пароль не пустой,
+  // false - если не отправлен, пароль пустой
+  $password_sent = !is_blank($admin['password']);
+
+  // здесь используется булево значение $password_sent 
+  // для ключа password_required в массиве опций
+  $errors = validate_admin($admin, ['password_required' => $password_sent]);
   if (!empty($errors)) {
     return $errors;
   }
@@ -550,7 +565,10 @@ function update_admin($admin) {
   $sql .= "first_name='" . db_escape($db, $admin['first_name']) . "', ";
   $sql .= "last_name='" . db_escape($db, $admin['last_name']) . "', ";
   $sql .= "email='" . db_escape($db, $admin['email']) . "', ";
-  $sql .= "hashed_password='" . db_escape($db, $hashed_password) . "',";
+  // если пароль отправлялся при обновлении, обновить его в БД
+  if($password_sent) {
+    $sql .= "hashed_password='" . db_escape($db, $hashed_password) . "',";
+  }
   $sql .= "username='" . db_escape($db, $admin['username']) . "' ";
   $sql .= "WHERE id='" . db_escape($db, $admin['id']) . "' ";
   $sql .= "LIMIT 1";
