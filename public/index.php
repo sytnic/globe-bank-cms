@@ -8,7 +8,7 @@ $preview = false;
 // но если в Гет-параметре задано true, то присвоить переменной true
 if(isset($_GET['preview'])) {
   // previewing should require admin to be logged in
-  $preview = $_GET['preview'] == 'true' ? true : false;
+  $preview = $_GET['preview'] == 'true' && is_logged_in() ? true : false;
 }
 
 $visible = !$preview; 
