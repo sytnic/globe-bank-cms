@@ -10,6 +10,7 @@
 $id = $_GET['id'] ?? '1';  // for PHP > 7.0
 
 $page = find_page_by_id($id);
+$subject = find_subject_by_id($page['subject_id']); 
 
 ?>
 
@@ -18,7 +19,7 @@ $page = find_page_by_id($id);
 
 <div id="content">
 
-<a class="back-link" href="<?php echo url_for('/staff/pages/index.php') ?>">&laquo; Back to List</a>
+<a class="back-link" href="<?php echo url_for('/staff/subjects/show.php?id='.h(u($subject['id']))); ?>">&laquo; Back to Subject Page</a>
 <br>
 
     <div class="page show">
@@ -30,7 +31,7 @@ $page = find_page_by_id($id);
       </div>
         
       <div class="attributes">
-        <?php $subject = find_subject_by_id($page['subject_id']); ?>
+        
         <dl>
           <dt>Subject</dt>
           <dd><?php echo h($subject['menu_name']); ?></dd>
