@@ -9,16 +9,15 @@ if(!isset($_GET['id'])) {
 }
 $id = $_GET['id'];
 
+$page = find_page_by_id($id);
+
 // Если это post-запрос, удалить страницу и редирект
 if(is_post_request()) {
 
   $result = delete_page($id);
-  $_SESSION['message'] = 'The subject was deleted successfully.';
-  redirect_to(url_for('/staff/pages/index.php'));
+  $_SESSION['message'] = 'The page was deleted successfully.';
+  redirect_to(url_for('/staff/subjects/show.php?id='.h(u($page['subject_id']))));
 
-} else { // иначе, в случае гет-запроса, подготавливаем форму
-
-  $page = find_page_by_id($id);
 }
 
 ?>
