@@ -389,7 +389,7 @@ function delete_page($id) {
  * @return result_set 
  */
 function find_pages_by_subject_id($subject_id, $options=[]) {
-  global $db;
+  global $db; 
 
   $visible = $options['visible'] ?? false;  
 
@@ -402,6 +402,37 @@ function find_pages_by_subject_id($subject_id, $options=[]) {
   $result = mysqli_query($db, $sql);
   confirm_result_set($result);
   return $result;
+}
+
+/**
+ * Получить количество страниц, относящихся к данному субъекту
+ *
+ * @param string $id
+ * @return integer 
+ */
+function count_pages_by_subject_id($subject_id, $options=[]) {
+  global $db; 
+
+  $visible = $options['visible'] ?? false;  
+
+  $sql = "SELECT COUNT(id) FROM pages";
+  $sql.= " WHERE subject_id='".db_escape($db, $subject_id)."' ";
+  if($visible) {
+    $sql.= " AND visible = true";
+  }
+  $sql.= " ORDER BY position ASC";
+  
+  $result = mysqli_query($db, $sql);
+  confirm_result_set($result);
+
+  // получаем индексированный (неассоциативный) массив с результатом,
+  // в данном случае результат запроса SQL - один столбец, одна ячейка
+  $row = mysqli_fetch_row($result);
+  mysqli_free_result($result);
+  // получаем единственное доступное значение, число
+  $count = $row[0];  
+  
+  return $count;
 }
 
 

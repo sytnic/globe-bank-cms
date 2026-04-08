@@ -151,5 +151,50 @@ https://www.php.net/manual/ru/function.password-verify.php
 
 Настроенная функция `require_login()` в `private\auth_functions.php` проверяет, вошёл пользователь (администратор) или нет, и допускает или не допускает на страницы, где она прописана.  
 
-##
+## 42. Add page count to each subject
 
+В функции мы получаем индексированный массив
+
+```php
+function count_pages_by_subject_id($subject_id, $options=[]) {
+  global $db; 
+
+  $sql = "SELECT COUNT(id) FROM pages"; 
+  
+  $result = mysqli_query($db, $sql);
+  confirm_result_set($result);
+
+  // получаем индексированный (неассоциативный) массив с результатом,
+  // в данном случае результат запроса SQL - один столбец, одна ячейка
+  $row = mysqli_fetch_row($result);
+  mysqli_free_result($result);
+  // получаем единственное доступное значение, число
+  $count = $row[0];  
+  
+  return $count;
+}
+```
+
+Но возможно получать и ассоциативный массив. Для этого нужно добавить `AS count` в SQL, использовать `mysqli_fetch_assoc` и `$row['count']`.
+
+```php
+function count_pages_by_subject_id($subject_id, $options=[]) {
+  global $db; 
+
+  $sql = "SELECT COUNT(id) AS count FROM pages"; 
+  
+  $result = mysqli_query($db, $sql);
+  confirm_result_set($result);
+
+  // получаем ассоциативный массив с результатом,
+  // в данном случае результат запроса SQL - один столбец, одна ячейка
+  $row = mysqli_fetch_assoc($result);
+  mysqli_free_result($result);
+  // получаем единственное доступное значение, число
+  $count = $row['count'];  
+  
+  return $count;
+}
+```
+
+## 
