@@ -33,9 +33,10 @@ if (is_post_request()) {
   $page['visible'] = '';
   $page['content'] = '';
 }
-  $page_set = find_all_pages();
-  $page_count = mysqli_num_rows($page_set) + 1 ;
-  mysqli_free_result($page_set);
+  
+  # Подсчитать количество относящихся к теме страниц 
+  # плюс одна - для возможности выбора новой позиции для новой страницы
+  $page_count = count_pages_by_subject_id($page['subject_id']) + 1;
 
 ?>
 
