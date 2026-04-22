@@ -101,6 +101,8 @@ function insert_subject($subject) {
         return $errors;
     }
 
+    shift_subject_positions(0, $subject['position']);
+
     $sql = "INSERT INTO subjects";
     $sql.= " (menu_name, position, visible)";
     $sql.= " VALUES (";
@@ -139,6 +141,10 @@ function update_subject($subject) {
         return $errors;
     }
 
+    $old_subject = find_subject_by_id($subject['id']);
+    $old_position = $old_subject['position'];
+    shift_subject_positions($old_position, $subject['position'], $subject['id']);
+
     $sql = "UPDATE subjects SET";
     $sql.= " menu_name='".db_escape($db, $subject['menu_name'])."',";
     $sql.= " position='".db_escape($db, $subject['position'])."',";
@@ -169,6 +175,10 @@ function update_subject($subject) {
 function delete_subject($id) {
     global $db;
 
+    $old_subject = find_subject_by_id($id);
+    $old_position = $old_subject['position'];
+    shift_subject_positions($old_position, 0, $id);
+
     $sql = "DELETE FROM subjects";
     $sql.= " WHERE id='".db_escape($db, $id)."'";
     $sql.= " LIMIT 1";
@@ -187,6 +197,50 @@ function delete_subject($id) {
     }
 }
 
+/**
+ * Меняет при необходимости нумерацию позиции темы
+ * для изменяемой/новой/удаляемой темы и для рядом стоящих тем
+ * 
+ */
+function shift_subject_positions($start_pos, $end_pos, $current_id=0) {
+  global $db;
+
+  if ($start_pos == $end_pos) { return; }
+
+  $sql = "UPDATE subjects ";
+  if ($start_pos == 0) {
+    // new item, +1 to items greater than $end_pos
+    $sql .= "SET position = position + 1 ";
+    $sql .= "WHERE position >= '" . db_escape($db, $end_pos) . "' ";
+  } elseif ($end_pos == 0) {
+    // delete item, -1 from items greater than $start_pos
+    $sql .= "SET position = position - 1 ";
+    $sql .= "WHERE position > '" . db_escape($db, $start_pos) . "' ";
+  } elseif ($start_pos < $end_pos) {
+    // move later, -1 from items between (including $end_pos)
+    $sql .= "SET position = position - 1 ";
+    $sql .= "WHERE position > '" . db_escape($db, $start_pos) . "' ";
+    $sql .= "AND position <= '" . db_escape($db, $end_pos) . "' ";
+  } elseif ($start_pos > $end_pos) {
+    // move earlier, +1 to items between (including $end_pos)
+    $sql .= "SET position = position + 1 ";
+    $sql .= "WHERE position >= '" . db_escape($db, $end_pos) . "' ";
+    $sql .= "AND position < '" . db_escape($db, $start_pos) . "' ";
+  }
+  // Exclude the current_id in the SQL WHERE clause
+  $sql .= "AND id != '" . db_escape($db, $current_id) . "' ";
+
+  $result = mysqli_query($db, $sql);
+  // For UPDATE statements, $result is true/false
+  if ($result) {
+    return true;
+  } else {
+    // UPDATE failed
+    echo mysqli_error($db);
+    db_disconnect($db);
+    exit;
+  }
+}
 
 // Pages
 
