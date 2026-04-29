@@ -1,6 +1,8 @@
 <?php
 
+//////
 // Subjects
+/////////////
 
 /**
  * Получает набор всех тем из таблицы subjects БД 
@@ -198,8 +200,9 @@ function delete_subject($id) {
 }
 
 /**
- * Меняет при необходимости нумерацию позиции темы
- * для изменяемой/новой/удаляемой темы и для рядом стоящих тем
+ * Меняет нумерацию позиции рядом стоящих тем, если
+ * задаётся, изменяется или удаляется позиция выбранной темы.  
+ * Массово изменяются строки в БД, меняется не единичная строка. 
  * 
  */
 function shift_subject_positions($start_pos, $end_pos, $current_id=0) {
@@ -207,6 +210,8 @@ function shift_subject_positions($start_pos, $end_pos, $current_id=0) {
 
   if ($start_pos == $end_pos) { return; }
 
+  // Задаём изменение позиций для рядом стоящих тем в случае
+  // создания, удаления или передвижения выбранной темы в списке позиций
   $sql = "UPDATE subjects ";
   if ($start_pos == 0) {
     // new item, +1 to items greater than $end_pos
@@ -228,6 +233,7 @@ function shift_subject_positions($start_pos, $end_pos, $current_id=0) {
     $sql .= "AND position < '" . db_escape($db, $start_pos) . "' ";
   }
   // Exclude the current_id in the SQL WHERE clause
+  // Позиция выбранной темы не должна затрагиваться вышестоящими измененениями 
   $sql .= "AND id != '" . db_escape($db, $current_id) . "' ";
 
   $result = mysqli_query($db, $sql);
@@ -242,7 +248,10 @@ function shift_subject_positions($start_pos, $end_pos, $current_id=0) {
   }
 }
 
+
+/////
 // Pages
+//////////////
 
 /**
  * Получает набор всех записей из таблицы pages БД 
@@ -354,6 +363,8 @@ function insert_page($page) {
         return $errors;
     }
 
+    shift_page_positions(0, $page['position'], $page['subject_id']);
+
     $sql = "INSERT INTO pages";
     $sql.= " (subject_id, menu_name, position, visible, content)";
     $sql.= " VALUES (";
@@ -390,6 +401,10 @@ function update_page($page) {
         return $errors;
     }
 
+    $old_page = find_page_by_id($page['id']);
+    $old_position = $old_page['position'];
+    shift_page_positions($old_position, $page['position'], $page['subject_id'], $page['id']);
+
     $sql = "UPDATE pages SET";
     $sql.= " subject_id='".db_escape($db, $page['subject_id'])."', ";
     $sql.= " menu_name='".db_escape($db, $page['menu_name'])."', ";
@@ -419,6 +434,10 @@ function update_page($page) {
  */
 function delete_page($id) {
     global $db;
+
+    $old_page = find_page_by_id($id);
+    $old_position = $old_page['position'];
+    shift_page_positions($old_position, 0, $old_page['subject_id'], $id);
 
     $sql = "DELETE FROM pages ";
     $sql.= " WHERE id='".db_escape($db, $id)."'";
@@ -489,8 +508,61 @@ function count_pages_by_subject_id($subject_id, $options=[]) {
   return $count;
 }
 
+/**
+ * Меняет нумерацию позиции рядом стоящих страниц, если
+ * задаётся, изменяется или удаляется позиция выбранной страницы.  
+ * Массово изменяются строки в БД, меняется не единичная строка. 
+ * 
+ */
+function shift_page_positions($start_pos, $end_pos, $subject_id, $current_id=0) {
+  global $db;
 
+  if($start_pos == $end_pos) { return; }
+
+  // Задаём изменение позиций для рядом стоящих страниц в случае
+  // создания, удаления или передвижения выбранной страницы в списке позиций
+  $sql = "UPDATE pages ";
+  if($start_pos == 0) {
+    // new item, +1 to items greater than $end_pos
+    $sql .= "SET position = position + 1 ";
+    $sql .= "WHERE position >= '" . db_escape($db, $end_pos) . "' ";
+  } elseif($end_pos == 0) {
+    // delete item, -1 from items greater than $start_pos
+    $sql .= "SET position = position - 1 ";
+    $sql .= "WHERE position > '" . db_escape($db, $start_pos) . "' ";
+  } elseif($start_pos < $end_pos) {
+    // move later, -1 from items between (including $end_pos)
+    $sql .= "SET position = position - 1 ";
+    $sql .= "WHERE position > '" . db_escape($db, $start_pos) . "' ";
+    $sql .= "AND position <= '" . db_escape($db, $end_pos) . "' ";
+  } elseif($start_pos > $end_pos) {
+    // move earlier, +1 to items between (including $end_pos)
+    $sql .= "SET position = position + 1 ";
+    $sql .= "WHERE position >= '" . db_escape($db, $end_pos) . "' ";
+    $sql .= "AND position < '" . db_escape($db, $start_pos) . "' ";
+  }
+  // Exclude the current_id in the SQL WHERE clause
+  // Позиция выбранной страницы не должна затрагиваться вышестоящими измененениями 
+  $sql .= "AND id != '" . db_escape($db, $current_id) . "' ";
+  // Учитывается отношение выбранной страницы и рядом стоящих страниц к их теме
+  $sql .= "AND subject_id = '" . db_escape($db, $subject_id) . "'";
+
+  $result = mysqli_query($db, $sql);
+  // For UPDATE statements, $result is true/false
+  if($result) {
+    return true;
+  } else {
+    // UPDATE failed
+    echo mysqli_error($db);
+    db_disconnect($db);
+    exit;
+  }
+}
+
+
+///////
 // Admins
+/////////////
 
 // Find all admins, ordered last_name, first_name
 function find_all_admins() {
